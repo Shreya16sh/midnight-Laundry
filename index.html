@@ -1,0 +1,1962 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌙 Midnight Laundry</title>
+<link href="https://fonts.googleapis.com/css2?family=Creepster&family=Special+Elite&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blood: #8b0000;
+    --deep-red: #3d0000;
+    --pale: #c8b89a;
+    --dim: #1a1a1a;
+    --flicker: #ff4444;
+    --fog: rgba(200,180,160,0.05);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #000;
+    color: var(--pale);
+    font-family: 'Special Elite', cursive;
+    min-height: 100vh;
+    overflow-x: hidden;
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20'%3E%3Ccircle cx='10' cy='10' r='4' fill='%238b0000'/%3E%3C/svg%3E") 10 10, crosshair;
+  }
+
+  /* GRAIN OVERLAY */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.08'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.4;
+    animation: grainShift 0.15s steps(1) infinite;
+  }
+
+  @keyframes grainShift {
+    0%,100%{transform:translate(0,0)}
+    25%{transform:translate(-2px,1px)}
+    50%{transform:translate(1px,-2px)}
+    75%{transform:translate(2px,1px)}
+  }
+
+  /* VIGNETTE */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.85) 100%);
+    pointer-events: none;
+    z-index: 9998;
+  }
+
+  /* SCREEN FLICKER */
+  .flicker { animation: flicker 8s infinite; }
+  @keyframes flicker {
+    0%,95%,100%{opacity:1}
+    96%{opacity:0.7}
+    97%{opacity:1}
+    98%{opacity:0.4}
+    99%{opacity:0.9}
+  }
+
+  /* ======================== TITLE SCREEN ======================== */
+  #titleScreen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 40px;
+    position: relative;
+  }
+
+  .title-art {
+    font-family: 'Creepster', cursive;
+    font-size: clamp(48px, 10vw, 120px);
+    color: var(--blood);
+    text-shadow:
+      0 0 20px var(--blood),
+      0 0 60px rgba(139,0,0,0.4),
+      3px 3px 0 #000;
+    letter-spacing: 4px;
+    animation: titlePulse 3s ease-in-out infinite;
+    line-height: 1;
+  }
+
+  @keyframes titlePulse {
+    0%,100%{text-shadow:0 0 20px var(--blood),0 0 60px rgba(139,0,0,0.4),3px 3px 0 #000}
+    50%{text-shadow:0 0 40px var(--blood),0 0 100px rgba(139,0,0,0.6),3px 3px 0 #000}
+  }
+
+  .title-sub {
+    font-family: 'Share Tech Mono', monospace;
+    color: #666;
+    font-size: 14px;
+    letter-spacing: 6px;
+    margin: 10px 0 50px;
+    text-transform: uppercase;
+  }
+
+  .drip-container {
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    height: 60px;
+    overflow: visible;
+    margin-bottom: 20px;
+  }
+
+  .drip {
+    position: absolute;
+    top: 0;
+    width: 3px;
+    background: linear-gradient(to bottom, var(--blood), transparent);
+    border-radius: 0 0 4px 4px;
+    animation: drip linear infinite;
+  }
+
+  @keyframes drip {
+    0%{height:0;opacity:1}
+    80%{opacity:1}
+    100%{height:80px;opacity:0}
+  }
+
+  .start-btn {
+    background: transparent;
+    border: 2px solid var(--blood);
+    color: var(--pale);
+    font-family: 'Creepster', cursive;
+    font-size: 28px;
+    letter-spacing: 4px;
+    padding: 16px 60px;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.3s;
+    text-transform: uppercase;
+    overflow: hidden;
+  }
+
+  .start-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--blood);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s ease;
+    z-index: -1;
+  }
+
+  .start-btn:hover::before { transform: scaleX(1); }
+  .start-btn:hover {
+    color: #fff;
+    text-shadow: 0 0 15px rgba(255,255,255,0.5);
+    box-shadow: 0 0 30px rgba(139,0,0,0.5);
+  }
+
+  .atmosphere-text {
+    margin-top: 40px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: #333;
+    letter-spacing: 2px;
+    animation: breathe 4s ease-in-out infinite;
+  }
+
+  @keyframes breathe {
+    0%,100%{opacity:0.3}50%{opacity:0.7}
+  }
+
+  /* ======================== MAIN GAME ======================== */
+  #mainGame { display: none; }
+
+  .game-wrapper {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  /* HUD */
+  .hud {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px;
+    border-bottom: 1px solid #2a0000;
+    margin-bottom: 20px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+  }
+
+  .hud-night {
+    color: var(--blood);
+    font-size: 16px;
+    letter-spacing: 3px;
+  }
+
+  .hud-sanity {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .sanity-bar {
+    width: 120px;
+    height: 8px;
+    background: #111;
+    border: 1px solid #333;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .sanity-fill {
+    height: 100%;
+    background: linear-gradient(to right, var(--blood), #ff6666);
+    transition: width 0.5s ease;
+  }
+
+  .clue-counter { color: #555; }
+
+  /* STORY BOX */
+  .story-container {
+    position: relative;
+    margin: 20px 0;
+  }
+
+  #storyBox {
+    border: 1px solid #2a0000;
+    background: rgba(10,0,0,0.8);
+    padding: 30px;
+    min-height: 140px;
+    font-size: 18px;
+    line-height: 1.8;
+    position: relative;
+    overflow: hidden;
+  }
+
+  #storyBox::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px; height: 100%;
+    background: var(--blood);
+  }
+
+  .typewriter-cursor {
+    display: inline-block;
+    width: 2px;
+    height: 1.2em;
+    background: var(--blood);
+    vertical-align: middle;
+    animation: blink 0.8s step-end infinite;
+    margin-left: 2px;
+  }
+
+  @keyframes blink { 50%{opacity:0} }
+
+  /* PHASE HEADER */
+  .phase-header {
+    font-family: 'Creepster', cursive;
+    font-size: 13px;
+    letter-spacing: 5px;
+    color: #3a0000;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+    font-family: 'Share Tech Mono', monospace;
+  }
+
+  /* ACTION PANELS */
+  .action-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin: 20px 0;
+  }
+
+  .action-card {
+    background: rgba(10,0,0,0.6);
+    border: 1px solid #1a0000;
+    padding: 18px;
+    cursor: pointer;
+    transition: all 0.25s;
+    position: relative;
+    overflow: hidden;
+    font-family: 'Special Elite', cursive;
+    color: var(--pale);
+    font-size: 14px;
+    text-align: left;
+  }
+
+  .action-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent, rgba(139,0,0,0.1));
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .action-card:hover::after { opacity: 1; }
+
+  .action-card:hover {
+    border-color: var(--blood);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(139,0,0,0.3);
+  }
+
+  .action-card.used {
+    opacity: 0.4;
+    pointer-events: none;
+    border-style: dashed;
+  }
+
+  .action-card .card-icon {
+    font-size: 28px;
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  .action-card .card-title {
+    font-family: 'Creepster', cursive;
+    font-size: 18px;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+
+  .action-card .card-desc {
+    font-size: 11px;
+    color: #666;
+    font-family: 'Share Tech Mono', monospace;
+  }
+
+  /* CLUE LOG */
+  .clue-log {
+    border: 1px solid #1a0000;
+    background: rgba(5,0,0,0.8);
+    padding: 15px;
+    margin: 15px 0;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    max-height: 100px;
+    overflow-y: auto;
+    color: #444;
+  }
+
+  .clue-log .clue-entry {
+    color: #6a3a3a;
+    padding: 2px 0;
+    border-bottom: 1px solid #111;
+    animation: clueAppear 0.5s ease;
+  }
+
+  @keyframes clueAppear {
+    from{opacity:0;transform:translateX(-10px)}
+    to{opacity:1;transform:translateX(0)}
+  }
+
+  .clue-entry.highlight { color: #cc4444; }
+
+  /* CONTINUE BUTTON */
+  .continue-btn {
+    width: 100%;
+    padding: 18px;
+    background: transparent;
+    border: 1px solid #2a0000;
+    color: #666;
+    font-family: 'Creepster', cursive;
+    font-size: 22px;
+    letter-spacing: 4px;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+    margin-top: 10px;
+  }
+
+  .continue-btn:hover {
+    border-color: var(--blood);
+    color: var(--pale);
+    box-shadow: inset 0 0 40px rgba(139,0,0,0.2);
+  }
+
+  .continue-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+
+  /* ======================== SECURITY CAMERA ======================== */
+  #cameraScreen {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: #000;
+    z-index: 100;
+    padding: 20px;
+    font-family: 'Share Tech Mono', monospace;
+  }
+
+  .camera-hud {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-size: 11px;
+    color: #3a3;
+  }
+
+  .cam-blink { animation: camBlink 1s step-end infinite; }
+  @keyframes camBlink { 50%{opacity:0} }
+
+  .camera-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 8px;
+    height: calc(100vh - 120px);
+  }
+
+  .cam-feed {
+    background: #050505;
+    border: 1px solid #1a3a1a;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+  }
+
+  .cam-feed::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,255,0,0.015) 2px,
+      rgba(0,255,0,0.015) 4px
+    );
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  .cam-label {
+    position: absolute;
+    top: 8px; left: 8px;
+    font-size: 10px;
+    color: #3a3;
+    z-index: 3;
+  }
+
+  .cam-time {
+    position: absolute;
+    bottom: 8px; right: 8px;
+    font-size: 10px;
+    color: #3a3;
+    z-index: 3;
+  }
+
+  .cam-content {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    z-index: 1;
+    filter: grayscale(1) brightness(0.4);
+  }
+
+  .cam-static {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    opacity: 0;
+    background: repeating-linear-gradient(90deg,rgba(255,255,255,0.03) 0,rgba(255,255,255,0.03) 1px,transparent 0,transparent 50%);
+    animation: staticFlash 6s infinite;
+  }
+
+  @keyframes staticFlash {
+    0%,90%,100%{opacity:0}
+    92%{opacity:0.8}
+    95%{opacity:0}
+    97%{opacity:0.5}
+  }
+
+  .cam-figure {
+    position: absolute;
+    font-size: 36px;
+    filter: grayscale(1) brightness(0.2);
+    transition: all 0.1s;
+    z-index: 2;
+  }
+
+  .cam-close-btn {
+    position: fixed;
+    bottom: 20px; right: 20px;
+    background: #0a0a0a;
+    border: 1px solid #3a3;
+    color: #3a3;
+    font-family: 'Share Tech Mono', monospace;
+    padding: 10px 20px;
+    cursor: pointer;
+    letter-spacing: 3px;
+    font-size: 12px;
+  }
+
+  .cam-close-btn:hover { background: #0f1a0f; }
+
+  .cam-anomaly-msg {
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    background: rgba(0,0,0,0.95);
+    border: 2px solid var(--blood);
+    color: var(--blood);
+    font-size: 24px;
+    padding: 30px 50px;
+    text-align: center;
+    z-index: 200;
+    display: none;
+    font-family: 'Creepster', cursive;
+    letter-spacing: 3px;
+  }
+
+  /* ======================== STALKER / AVOID SCREEN ======================== */
+  #stalkerScreen {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: #000;
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+  }
+
+  .stalker-title {
+    font-family: 'Creepster', cursive;
+    font-size: 48px;
+    color: var(--blood);
+    margin-bottom: 20px;
+    text-shadow: 0 0 30px var(--blood);
+    animation: titlePulse 1s ease-in-out infinite;
+  }
+
+  .stalker-arena {
+    width: min(700px, 90vw);
+    height: 120px;
+    background: #050505;
+    border: 1px solid #2a0000;
+    position: relative;
+    overflow: hidden;
+    margin: 20px 0;
+  }
+
+  .stalker-arena::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 60px,
+      rgba(139,0,0,0.05) 60px,
+      rgba(139,0,0,0.05) 61px
+    );
+  }
+
+  #playerChar {
+    position: absolute;
+    bottom: 10px;
+    font-size: 32px;
+    transition: left 0.05s linear;
+    filter: drop-shadow(0 0 8px rgba(200,200,200,0.5));
+  }
+
+  #stalkerChar {
+    position: absolute;
+    bottom: 10px;
+    font-size: 32px;
+    filter: drop-shadow(0 0 8px rgba(139,0,0,0.8));
+    transition: left 0.05s linear;
+  }
+
+  .proximity-bar-wrap {
+    width: min(700px, 90vw);
+    height: 10px;
+    background: #111;
+    border: 1px solid #2a0000;
+    overflow: hidden;
+  }
+
+  .proximity-fill {
+    height: 100%;
+    background: linear-gradient(to right, #3a3, #aa3, var(--blood));
+    width: 0%;
+    transition: width 0.1s;
+  }
+
+  .stalker-instruction {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    color: #555;
+    margin-top: 15px;
+    letter-spacing: 3px;
+  }
+
+  .key-hint {
+    display: inline-block;
+    border: 1px solid #444;
+    padding: 2px 8px;
+    color: #888;
+    font-size: 12px;
+    margin: 0 3px;
+  }
+
+  .progress-line {
+    width: min(700px, 90vw);
+    display: flex;
+    justify-content: space-between;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: #333;
+    margin-top: 5px;
+  }
+
+  /* ======================== BASEMENT ======================== */
+  #basementScreen {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: #000;
+    z-index: 100;
+    padding: 40px;
+    font-family: 'Share Tech Mono', monospace;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+  }
+
+  .basement-title {
+    font-family: 'Creepster', cursive;
+    font-size: 36px;
+    color: #444;
+    margin-bottom: 30px;
+    letter-spacing: 5px;
+  }
+
+  .lock-display {
+    font-size: 48px;
+    letter-spacing: 20px;
+    color: var(--blood);
+    border: 2px solid #2a0000;
+    padding: 20px 40px;
+    background: rgba(10,0,0,0.8);
+    margin-bottom: 20px;
+    font-family: 'Creepster', cursive;
+  }
+
+  .keypad {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    width: 200px;
+    margin: 20px auto;
+  }
+
+  .key-btn {
+    background: #0a0a0a;
+    border: 1px solid #1a0000;
+    color: var(--pale);
+    font-family: 'Special Elite', cursive;
+    font-size: 22px;
+    padding: 15px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .key-btn:hover {
+    border-color: var(--blood);
+    background: #1a0000;
+    color: #fff;
+  }
+
+  .clue-hint {
+    font-size: 11px;
+    color: #3a0000;
+    text-align: center;
+    max-width: 400px;
+    line-height: 1.8;
+    letter-spacing: 2px;
+  }
+
+  /* ======================== FINAL CHASE ======================== */
+  #finalChase {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: #000;
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+  }
+
+  .chase-title {
+    font-family: 'Creepster', cursive;
+    font-size: 72px;
+    color: var(--blood);
+    text-shadow: 0 0 40px var(--blood), 0 0 80px rgba(139,0,0,0.5);
+    animation: chaseShake 0.1s ease-in-out infinite;
+  }
+
+  @keyframes chaseShake {
+    0%,100%{transform:translate(0,0)}
+    25%{transform:translate(-2px,1px)}
+    75%{transform:translate(2px,-1px)}
+  }
+
+  .chase-arena {
+    width: min(800px, 90vw);
+    height: 140px;
+    background: #050505;
+    border: 1px solid var(--blood);
+    position: relative;
+    overflow: hidden;
+    margin: 20px 0;
+    box-shadow: 0 0 40px rgba(139,0,0,0.3), inset 0 0 40px rgba(139,0,0,0.1);
+  }
+
+  .chase-arena::after {
+    content: 'EXIT ►';
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: #2a2a2a;
+  }
+
+  #chasePlayer {
+    position: absolute;
+    bottom: 15px;
+    font-size: 36px;
+    filter: drop-shadow(0 0 10px rgba(255,255,255,0.5));
+  }
+
+  #chaseEnemy {
+    position: absolute;
+    bottom: 15px;
+    font-size: 36px;
+    left: 0;
+    filter: drop-shadow(0 0 15px rgba(139,0,0,1));
+    animation: enemyShake 0.15s ease-in-out infinite;
+  }
+
+  @keyframes enemyShake {
+    0%,100%{transform:rotate(0deg)}
+    50%{transform:rotate(5deg) scale(1.05)}
+  }
+
+  .chase-tap-instruction {
+    font-family: 'Creepster', cursive;
+    font-size: 24px;
+    color: #666;
+    letter-spacing: 3px;
+    animation: breathe 1s ease-in-out infinite;
+  }
+
+  /* ======================== ENDING SCREEN ======================== */
+  #endScreen {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+    padding: 40px;
+  }
+
+  #endScreen.good-end { background: radial-gradient(ellipse at center, #001a0a, #000); }
+  #endScreen.bad-end { background: radial-gradient(ellipse at center, #1a0000, #000); }
+
+  .end-title {
+    font-family: 'Creepster', cursive;
+    font-size: 72px;
+    margin-bottom: 20px;
+    animation: endReveal 1s ease forwards;
+  }
+
+  .good-end .end-title { color: #3a3; text-shadow: 0 0 40px #3a3; }
+  .bad-end .end-title { color: var(--blood); text-shadow: 0 0 40px var(--blood); }
+
+  @keyframes endReveal {
+    from{opacity:0;transform:scale(0.5)}
+    to{opacity:1;transform:scale(1)}
+  }
+
+  .end-story {
+    max-width: 500px;
+    font-size: 16px;
+    line-height: 1.9;
+    color: var(--pale);
+    margin-bottom: 30px;
+    animation: fadeUp 1.5s ease forwards;
+    opacity: 0;
+  }
+
+  @keyframes fadeUp {
+    from{opacity:0;transform:translateY(20px)}
+    to{opacity:1;transform:translateY(0)}
+  }
+
+  .end-stats {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: #444;
+    letter-spacing: 3px;
+    margin-bottom: 30px;
+    animation: fadeUp 2s ease forwards;
+    opacity: 0;
+  }
+
+  .restart-btn {
+    background: transparent;
+    border: 1px solid #444;
+    color: #555;
+    font-family: 'Share Tech Mono', monospace;
+    padding: 12px 30px;
+    letter-spacing: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.3s;
+    animation: fadeUp 2.5s ease forwards;
+    opacity: 0;
+  }
+
+  .restart-btn:hover { border-color: #888; color: #aaa; }
+
+  /* ======================== JUMP SCARE ======================== */
+  #jumpScare {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: var(--blood);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    font-size: 120px;
+    animation: scareFlash 0.5s ease;
+  }
+
+  @keyframes scareFlash {
+    0%{opacity:0;transform:scale(2)}
+    30%{opacity:1;transform:scale(1)}
+    70%{opacity:1}
+    100%{opacity:0}
+  }
+
+  /* ======================== AMBIENT EFFECTS ======================== */
+  .blood-splatter {
+    position: fixed;
+    pointer-events: none;
+    z-index: 9990;
+    font-size: 20px;
+    opacity: 0;
+    animation: splatterFade 3s ease forwards;
+  }
+
+  @keyframes splatterFade {
+    0%{opacity:0.8;transform:scale(0)}
+    20%{opacity:0.6;transform:scale(1)}
+    100%{opacity:0;transform:scale(1.2)}
+  }
+
+  /* SCREEN SHAKE */
+  @keyframes screenShake {
+    0%,100%{transform:translate(0,0)}
+    10%{transform:translate(-5px,3px)}
+    30%{transform:translate(5px,-3px)}
+    50%{transform:translate(-3px,5px)}
+    70%{transform:translate(3px,-5px)}
+    90%{transform:translate(-5px,3px)}
+  }
+
+  .shake { animation: screenShake 0.5s ease; }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: #000; }
+  ::-webkit-scrollbar-thumb { background: #2a0000; }
+
+  /* RED MIST */
+  .mist {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: 150px;
+    background: linear-gradient(to top, rgba(100,0,0,0.15), transparent);
+    pointer-events: none;
+    z-index: 9997;
+    animation: mistFlow 6s ease-in-out infinite;
+  }
+
+  @keyframes mistFlow {
+    0%,100%{opacity:0.5;transform:scaleY(1)}
+    50%{opacity:1;transform:scaleY(1.3)}
+  }
+</style>
+</head>
+<body>
+
+<div class="mist"></div>
+
+<!-- ======================== TITLE SCREEN ======================== -->
+<div id="titleScreen">
+  <div class="drip-container" id="dripContainer"></div>
+  <div class="title-art flicker">MIDNIGHT<br>LAUNDRY</div>
+  <div class="title-sub">◆ A Night Shift Horror ◆</div>
+  <button class="start-btn" onclick="startGame()">ENTER THE LAUNDROMAT</button>
+  <div class="atmosphere-text">HEADPHONES RECOMMENDED · PLAY ALONE · PLAY AT NIGHT</div>
+</div>
+
+<!-- ======================== MAIN GAME ======================== -->
+<div id="mainGame">
+  <div class="game-wrapper">
+
+    <div class="hud">
+      <div class="hud-night" id="nightLabel">◆ NIGHT 1 ◆</div>
+      <div class="hud-sanity">
+        <span style="font-size:10px;letter-spacing:2px;color:#444">SANITY</span>
+        <div class="sanity-bar"><div class="sanity-fill" id="sanityFill" style="width:100%"></div></div>
+      </div>
+      <div class="clue-counter" id="clueCounter">CLUES: 0 / 5</div>
+    </div>
+
+    <div class="phase-header" id="phaseLabel">// PHASE 01 — EXPLORE</div>
+
+    <div class="story-container">
+      <div id="storyBox">
+        <span id="storyText"></span><span class="typewriter-cursor"></span>
+      </div>
+    </div>
+
+    <div class="clue-log" id="clueLog">
+      <div style="color:#222;letter-spacing:2px;font-size:10px">// EVIDENCE LOG — EMPTY</div>
+    </div>
+
+    <div class="action-grid" id="actionGrid"></div>
+
+    <button class="continue-btn" id="continueBtn" onclick="advancePhase()" disabled>
+      ▼ &nbsp; CONTINUE &nbsp; ▼
+    </button>
+
+  </div>
+</div>
+
+<!-- ======================== SECURITY CAMERAS ======================== -->
+<div id="cameraScreen">
+  <div class="camera-hud">
+    <span>◆ SECURITY SYSTEM v2.1</span>
+    <span class="cam-blink">● REC</span>
+    <span id="camTime">03:47:12</span>
+  </div>
+  <div class="camera-grid" id="cameraGrid"></div>
+  <div id="camAnomalyMsg" class="cam-anomaly-msg"></div>
+  <button class="cam-close-btn" onclick="closeCameras()">[ CLOSE CAMERAS ]</button>
+</div>
+
+<!-- ======================== STALKER AVOID ======================== -->
+<div id="stalkerScreen" style="display:none;position:fixed;inset:0;background:#000;z-index:100;flex-direction:column;align-items:center;justify-content:center;">
+  <div class="stalker-title">HIDE!</div>
+  <div id="stalkerArena" class="stalker-arena">
+    <div id="playerChar" style="left:80px">🧍</div>
+    <div id="stalkerChar" style="right:20px">👤</div>
+  </div>
+  <div class="proximity-bar-wrap">
+    <div class="proximity-fill" id="proximityFill"></div>
+  </div>
+  <div class="progress-line">
+    <span>SAFE</span><span>DANGER</span><span>CAUGHT</span>
+  </div>
+  <div class="stalker-instruction" id="stalkerInstruction">
+    PRESS <span class="key-hint">A</span> / <span class="key-hint">D</span> TO MOVE · REACH THE HIDING SPOT
+  </div>
+</div>
+
+<!-- ======================== BASEMENT LOCK ======================== -->
+<div id="basementScreen" style="display:none;position:fixed;inset:0;background:#000;z-index:100;flex-direction:column;align-items:center;justify-content:center;">
+  <div class="basement-title">// BASEMENT LOCK</div>
+  <div class="lock-display" id="lockDisplay">_ _ _ _</div>
+  <div id="lockFeedback" style="font-family:'Share Tech Mono',monospace;font-size:12px;color:#444;margin:5px 0;letter-spacing:3px;height:20px;"></div>
+  <div class="keypad" id="keypad"></div>
+  <div class="clue-hint" id="lockHint">// THE CODE IS HIDDEN IN THE CLUES YOU'VE COLLECTED</div>
+  <button style="margin-top:20px;background:transparent;border:1px solid #2a0000;color:#444;font-family:'Share Tech Mono',monospace;padding:8px 20px;cursor:pointer;letter-spacing:3px;font-size:11px;" onclick="closeBasement()">[ BACK ]</button>
+</div>
+
+<!-- ======================== FINAL CHASE ======================== -->
+<div id="finalChase" style="display:none;position:fixed;inset:0;background:#000;z-index:100;flex-direction:column;align-items:center;justify-content:center;">
+  <div class="chase-title">RUN!!!</div>
+  <div class="chase-arena" id="chaseArena">
+    <div id="chasePlayer" style="left:60px">🏃</div>
+    <div id="chaseEnemy" style="left:0px">👁️</div>
+  </div>
+  <div class="proximity-bar-wrap" style="width:min(800px,90vw)">
+    <div class="proximity-fill" id="chaseFill" style="width:0%"></div>
+  </div>
+  <div class="chase-tap-instruction">
+    SPAM <span class="key-hint" style="border-color:var(--blood);color:var(--blood)">D</span> OR TAP SCREEN TO RUN
+  </div>
+</div>
+
+<!-- ======================== END SCREEN ======================== -->
+<div id="endScreen" style="display:none">
+  <div class="end-title" id="endTitle">?</div>
+  <div class="end-story" id="endStory"></div>
+  <div class="end-stats" id="endStats"></div>
+  <button class="restart-btn" onclick="location.reload()">[ PLAY AGAIN ]</button>
+</div>
+
+<!-- ======================== JUMP SCARE ======================== -->
+<div id="jumpScare" style="display:none;position:fixed;inset:0;background:var(--blood);z-index:1000;align-items:center;justify-content:center;font-size:120px;">👁️</div>
+
+<script>
+// ======================================================
+// GAME STATE
+// ======================================================
+const G = {
+  phase: 0,
+  night: 1,
+  sanity: 100,
+  clues: [],
+  cluesFound: 0,
+  totalClues: 5,
+  hasKey: false,
+  stalkerSeen: false,
+  cameraClueFound: false,
+  basementUnlocked: false,
+  chaseEscaped: false,
+  phaseComplete: false,
+  lockCode: '1947',
+  actions: {},
+  startTime: Date.now()
+};
+
+// ======================================================
+// AUDIO
+// ======================================================
+let audioCtx = null;
+
+function getAudio() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+
+function playTone(freq, type='sine', duration=0.3, volume=0.1) {
+  try {
+    const ctx = getAudio();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type = type;
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(volume, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+    osc.start();
+    osc.stop(ctx.currentTime + duration);
+  } catch(e){}
+}
+
+function playCreak() {
+  try {
+    const ctx = getAudio();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(80, ctx.currentTime);
+    osc.frequency.linearRampToValueAtTime(40, ctx.currentTime + 0.8);
+    gain.gain.setValueAtTime(0.15, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.8);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.8);
+  } catch(e){}
+}
+
+function playHeartbeat() {
+  try {
+    const ctx = getAudio();
+    function beat(t) {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.value = 60;
+      gain.gain.setValueAtTime(0, t);
+      gain.gain.linearRampToValueAtTime(0.3, t + 0.05);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
+      osc.start(t);
+      osc.stop(t + 0.15);
+    }
+    const now = ctx.currentTime;
+    beat(now);
+    beat(now + 0.15);
+  } catch(e){}
+}
+
+function playScream() {
+  try {
+    const ctx = getAudio();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    const dist = ctx.createWaveShaper();
+    const curve = new Float32Array(256);
+    for(let i=0;i<256;i++) curve[i] = ((i*2/256)-1)*20;
+    dist.curve = curve;
+    osc.connect(dist);
+    dist.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(200, ctx.currentTime);
+    osc.frequency.linearRampToValueAtTime(800, ctx.currentTime + 0.3);
+    osc.frequency.linearRampToValueAtTime(100, ctx.currentTime + 0.8);
+    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1);
+    osc.start();
+    osc.stop(ctx.currentTime + 1);
+  } catch(e){}
+}
+
+// ======================================================
+// DRIPS
+// ======================================================
+function createDrips() {
+  const c = document.getElementById('dripContainer');
+  for(let i=0;i<15;i++){
+    const d = document.createElement('div');
+    d.className = 'drip';
+    d.style.left = (Math.random()*100)+'%';
+    d.style.animationDuration = (2+Math.random()*4)+'s';
+    d.style.animationDelay = (Math.random()*5)+'s';
+    c.appendChild(d);
+  }
+}
+
+// ======================================================
+// TYPEWRITER
+// ======================================================
+let typeTimer = null;
+function typeText(text, cb) {
+  clearTimeout(typeTimer);
+  const el = document.getElementById('storyText');
+  el.textContent = '';
+  let i = 0;
+  function next() {
+    if(i < text.length) {
+      el.textContent += text[i++];
+      if(text[i-1] !== ' ') playTone(200+Math.random()*100,'sine',0.02,0.02);
+      typeTimer = setTimeout(next, 30 + Math.random()*20);
+    } else if(cb) cb();
+  }
+  next();
+}
+
+// ======================================================
+// UI HELPERS
+// ======================================================
+function setSanity(val) {
+  G.sanity = Math.max(0, Math.min(100, val));
+  document.getElementById('sanityFill').style.width = G.sanity+'%';
+  if(G.sanity < 30) {
+    document.getElementById('sanityFill').style.background = 'var(--blood)';
+    triggerScreenShake();
+  }
+}
+
+function addClue(text, highlight=false) {
+  G.cluesFound++;
+  G.clues.push(text);
+  const log = document.getElementById('clueLog');
+  const entry = document.createElement('div');
+  entry.className = 'clue-entry' + (highlight ? ' highlight' : '');
+  entry.textContent = `[${String(G.cluesFound).padStart(2,'0')}] ${text}`;
+  log.appendChild(entry);
+  log.scrollTop = log.scrollHeight;
+  document.getElementById('clueCounter').textContent = `CLUES: ${G.cluesFound} / ${G.totalClues}`;
+  playTone(440,'sine',0.2,0.05);
+}
+
+function enableContinue() {
+  const btn = document.getElementById('continueBtn');
+  btn.disabled = false;
+  btn.style.color = 'var(--pale)';
+  btn.style.borderColor = '#4a0000';
+}
+
+function setPhaseLabel(text) {
+  document.getElementById('phaseLabel').textContent = text;
+}
+
+function setNightLabel(text) {
+  document.getElementById('nightLabel').textContent = text;
+}
+
+function triggerScreenShake() {
+  document.body.classList.remove('shake');
+  void document.body.offsetWidth;
+  document.body.classList.add('shake');
+  setTimeout(()=>document.body.classList.remove('shake'),500);
+}
+
+function triggerJumpScare(cb) {
+  playScream();
+  const js = document.getElementById('jumpScare');
+  js.style.display = 'flex';
+  triggerScreenShake();
+  setTimeout(()=>{
+    js.style.display = 'none';
+    if(cb) cb();
+  }, 600);
+}
+
+function buildActionGrid(actions) {
+  const grid = document.getElementById('actionGrid');
+  grid.innerHTML = '';
+  actions.forEach(a => {
+    const card = document.createElement('div');
+    card.className = 'action-card' + (a.used ? ' used' : '');
+    card.id = 'action_' + a.id;
+    card.innerHTML = `<span class="card-icon">${a.icon}</span><div class="card-title">${a.title}</div><div class="card-desc">${a.desc}</div>`;
+    if(!a.used) card.onclick = () => doAction(a.id);
+    grid.appendChild(card);
+  });
+}
+
+function markActionUsed(id) {
+  const el = document.getElementById('action_'+id);
+  if(el) el.classList.add('used');
+}
+
+// ======================================================
+// PHASE DEFINITIONS
+// ======================================================
+const PHASES = [
+  // 0: START / EXPLORE
+  {
+    night: 1,
+    label: '// PHASE 01 — EXPLORE',
+    nightLabel: '◆ NIGHT 1 ◆',
+    story: "3:47 AM. The laundromat is empty — or so you hope. The fluorescent lights stutter. Somewhere, a machine hums. Your shift doesn't end until dawn.",
+    actions: [
+      {id:'look_around', icon:'👁️', title:'Look Around', desc:'Survey the laundromat', used:false},
+      {id:'check_lost', icon:'🧺', title:'Lost & Found Box', desc:'See what was left behind', used:false},
+      {id:'check_sign', icon:'📋', title:'Read Sign', desc:'Notice board by the door', used:false},
+    ],
+    requiredActions: 3,
+    onComplete: 1
+  },
+  // 1: INSPECT CLOTHES
+  {
+    night: 1,
+    label: '// PHASE 02 — INSPECT CLOTHING',
+    nightLabel: '◆ NIGHT 1 ◆',
+    story: "Three machines are mid-cycle. Each one churning something that shouldn't be here. You feel eyes on the back of your neck.",
+    actions: [
+      {id:'cloth_hoodie', icon:'🩸', title:'Bloody Hoodie', desc:'Machine #3 — soaking', used:false},
+      {id:'cloth_uniform', icon:'👔', title:'Child\'s Uniform', desc:'Machine #7 — still running', used:false},
+      {id:'cloth_jacket', icon:'🔥', title:'Burned Jacket', desc:'Machine #12 — still warm', used:false},
+    ],
+    requiredActions: 3,
+    onComplete: 2
+  },
+  // 2: COLLECT CLUES
+  {
+    night: 2,
+    label: '// PHASE 03 — COLLECT CLUES',
+    nightLabel: '◆ NIGHT 2 ◆',
+    story: "You return for a second night. Someone has rearranged the furniture. A folded note sits on your chair. The calendar on the wall has a date circled in red: 1947.",
+    actions: [
+      {id:'read_note', icon:'📄', title:'Read the Note', desc:'Folded twice on your chair', used:false},
+      {id:'check_calendar', icon:'📅', title:'Examine Calendar', desc:'Red ink on a specific date', used:false},
+      {id:'floor_scratch', icon:'🔍', title:'Floor Markings', desc:'Something scratched into tiles', used:false},
+      {id:'drain_check', icon:'🌀', title:'Check the Drain', desc:'Something blocks the drain', used:false},
+    ],
+    requiredActions: 4,
+    onComplete: 3
+  },
+  // 3: SECURITY CAMERAS
+  {
+    night: 2,
+    label: '// PHASE 04 — SECURITY CAMERAS',
+    nightLabel: '◆ NIGHT 2 ◆',
+    story: "You find a security monitor in the back office. The feeds show something — someone — moving through the laundromat. But you're alone. Aren't you?",
+    actions: [
+      {id:'open_cameras', icon:'📷', title:'View Camera Feeds', desc:'Monitor in the back office', used:false},
+    ],
+    requiredActions: 1,
+    onComplete: 4
+  },
+  // 4: AVOID STALKER
+  {
+    night: 3,
+    label: '// PHASE 05 — AVOID THE STALKER',
+    nightLabel: '◆ NIGHT 3 ◆',
+    story: "Night three. The figure from the cameras is HERE. You can hear breathing between the machines. You need to reach the storage closet without being seen.",
+    actions: [
+      {id:'start_hide', icon:'🏃', title:'Make a Run For It', desc:'Get to the closet before it finds you', used:false},
+    ],
+    requiredActions: 1,
+    onComplete: 5
+  },
+  // 5: UNLOCK BASEMENT
+  {
+    night: 3,
+    label: '// PHASE 06 — UNLOCK THE BASEMENT',
+    nightLabel: '◆ NIGHT 3 ◆',
+    story: "Behind the closet — a door. Steel. A 4-digit lock. The code is hidden in what you've seen. Think carefully. This is your only way down.",
+    actions: [
+      {id:'open_basement', icon:'🔐', title:'Attempt Lock Code', desc:'Enter 4-digit combination', used:false},
+    ],
+    requiredActions: 1,
+    onComplete: 6
+  },
+  // 6: FINAL CHASE
+  {
+    night: 4,
+    label: '// PHASE 07 — FINAL ESCAPE',
+    nightLabel: '◆ NIGHT 4 ◆',
+    story: "The basement opens up into a tunnel. Behind you — shattering glass. It's coming. The exit is ahead. Run. Don't stop. Don't look back.",
+    actions: [
+      {id:'start_chase', icon:'🚪', title:'FLEE', desc:'Your only option now', used:false},
+    ],
+    requiredActions: 1,
+    onComplete: 7
+  }
+];
+
+let currentPhaseActions = [];
+let actionsUsed = 0;
+let requiredForPhase = 0;
+
+// ======================================================
+// ACTION HANDLERS
+// ======================================================
+function doAction(id) {
+  markActionUsed(id);
+  playCreak();
+  actionsUsed++;
+
+  const handlers = {
+    // Phase 0
+    look_around: ()=>{
+      typeText("The machines along the west wall are running — four of them. You didn't start them. Near the back, a door you've never noticed before. Emergency exit? No… it leads down.");
+      setSanity(G.sanity - 5);
+    },
+    check_lost: ()=>{
+      typeText("A child's shoe. A wallet — ID inside, photo of a family smiling on a beach. A ring with an inscription: 'For eternity.' None of these items have been claimed in months.");
+      addClue("Lost & found: a child's shoe, an old wedding ring");
+    },
+    check_sign: ()=>{
+      typeText("The community board has a missing person flyer — 8-year-old Elise Marrow, last seen wearing a school uniform. Below it, someone has scrawled in red marker: 'SHE NEVER LEFT.'");
+      addClue("Missing child: Elise Marrow — last seen here", true);
+      setSanity(G.sanity - 10);
+    },
+    // Phase 1
+    cloth_hoodie: ()=>{
+      typeText("The water in the drum is red. Not rust — blood. The hoodie is adult-sized. As you lean closer, the machine door fogs from the inside. Like breath.");
+      addClue("Blood in machine #3 — human-sized clothing");
+      setSanity(G.sanity - 10);
+      triggerScreenShake();
+    },
+    cloth_uniform: ()=>{
+      typeText("A school uniform. St. Margaret's Primary — Elise Marrow's school. It's small. Child-sized. Still warm. The nametag inside reads: E. MARROW — 1947.");
+      addClue("Elise's uniform found — tag reads '1947'", true);
+      setSanity(G.sanity - 15);
+      playHeartbeat();
+    },
+    cloth_jacket: ()=>{
+      typeText("The jacket is leather, burned across the back in the shape of a hand — five fingers. The smell is wrong. Not fabric fire. Flesh. The drum stops spinning as you reach in.");
+      addClue("Burned jacket — handprint shape, no origin");
+      setSanity(G.sanity - 10);
+      setTimeout(()=>triggerJumpScare(()=>{}), 1500);
+    },
+    // Phase 2
+    read_note: ()=>{
+      typeText("'You shouldn't be here at night. No one should. They come back through the machines. The water calls them. Leave before 4AM. — J.R.'");
+      addClue("Warning note: 'They come back through the machines'", true);
+    },
+    check_calendar: ()=>{
+      typeText("March 1947. The circled date: March 14th. In the margin, barely legible: 'The incident. 4 missing. Basement sealed.' The laundromat is built on something older.");
+      addClue("1947 incident — 4 missing persons, basement sealed");
+    },
+    floor_scratch: ()=>{
+      typeText("Under machine #7 — the floor tiles are scratched. Long, frantic marks, like fingernails dragged across stone. Dozens of them, all pointing toward the back door.");
+      addClue("Claw marks under machine #7 — pointing to back door");
+      setSanity(G.sanity - 10);
+    },
+    drain_check: ()=>{
+      typeText("The central drain is blocked with something matted and dark. Hair. You pull — it doesn't stop coming. Eight, nine, ten feet of hair. At the end: a rusted key on a chain.");
+      addClue("Found rusted key in drain — opens something below");
+      G.hasKey = true;
+      playTone(660,'sine',0.4,0.08);
+    },
+    // Phase 3
+    open_cameras: ()=>{
+      typeText("The monitor flickers on. Four feeds. You watch them carefully... wait. In camera 3 — near the back machines — something moves. Something tall. And it's looking at the camera.");
+      setSanity(G.sanity - 15);
+      setTimeout(()=>{
+        openCameras();
+      }, 2000);
+    },
+    // Phase 4
+    start_hide: ()=>{
+      typeText("You press yourself against the wall. Through the rows of machines, you can see it — a silhouette. Tall, wrong proportions. It's moving slowly. You need to reach the closet.");
+      setTimeout(()=>{
+        startStalker();
+      }, 2000);
+    },
+    // Phase 5
+    open_basement: ()=>{
+      openBasement();
+    },
+    // Phase 6
+    start_chase: ()=>{
+      typeText("The tunnel shakes. Behind you — the door EXPLODES inward. It screams. Not like an animal — like a person who forgot how. RUN.");
+      setTimeout(()=>startFinalChase(), 2000);
+    }
+  };
+
+  if(handlers[id]) handlers[id]();
+
+  // Check if phase complete
+  const phase = PHASES[G.phase];
+  if(actionsUsed >= requiredForPhase) {
+    setTimeout(enableContinue, 1500);
+  }
+}
+
+// ======================================================
+// ADVANCE PHASE
+// ======================================================
+function advancePhase() {
+  G.phase = PHASES[G.phase].onComplete;
+  if(G.phase >= PHASES.length) return;
+  loadPhase(G.phase);
+}
+
+function loadPhase(idx) {
+  const phase = PHASES[idx];
+  actionsUsed = 0;
+  requiredForPhase = phase.requiredActions;
+
+  setPhaseLabel(phase.label);
+  setNightLabel(phase.nightLabel);
+  document.getElementById('continueBtn').disabled = true;
+  document.getElementById('continueBtn').style.color = '';
+  document.getElementById('continueBtn').style.borderColor = '';
+
+  typeText(phase.story);
+  buildActionGrid(phase.actions);
+
+  playCreak();
+  setSanity(G.sanity - 3);
+}
+
+// ======================================================
+// CAMERA SYSTEM
+// ======================================================
+let camInterval = null;
+let anomalyShown = false;
+let camCloseTimeout = null;
+
+const cameraFeeds = [
+  {label:'CAM 01 — ENTRANCE', content:'🚪', hasAnomaly: false},
+  {label:'CAM 02 — MACHINE ROW A', content:'🌀', hasAnomaly: false},
+  {label:'CAM 03 — BACK AREA', content:'🌀', hasAnomaly: true},
+  {label:'CAM 04 — OFFICE', content:'🗂️', hasAnomaly: false},
+];
+
+function openCameras() {
+  document.getElementById('cameraScreen').style.display = 'block';
+  buildCameraGrid();
+  startCamTime();
+  anomalyShown = false;
+  G.cameraClueFound = false;
+
+  // Show anomaly after 4 seconds
+  camCloseTimeout = setTimeout(showCamAnomaly, 4000);
+}
+
+function buildCameraGrid() {
+  const grid = document.getElementById('cameraGrid');
+  grid.innerHTML = '';
+  cameraFeeds.forEach((feed, i) => {
+    const cam = document.createElement('div');
+    cam.className = 'cam-feed';
+    cam.innerHTML = `
+      <div class="cam-label">${feed.label}</div>
+      <div class="cam-content">${feed.content}</div>
+      <div class="cam-static"></div>
+      <div class="cam-time" id="camT${i}">03:47:${String(10+i*7).padStart(2,'0')}</div>
+    `;
+    // Horror image in cam 3
+    if(feed.hasAnomaly) {
+      const fig = document.createElement('div');
+      fig.id = 'camFigure';
+      fig.style.cssText = `
+        position:absolute;inset:0;display:flex;align-items:center;
+        justify-content:center;z-index:3;opacity:0;
+        transition:opacity 1.5s ease;
+        background:rgba(0,0,0,0.3);
+      `;
+      // Drawn SVG horror face — no external image needed
+      fig.innerHTML = `
+        <svg viewBox="0 0 200 240" width="100%" height="100%"
+             style="filter:grayscale(1) brightness(0.55) contrast(1.4) sepia(0.3);"
+             xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <filter id="blur1"><feGaussianBlur stdDeviation="1.2"/></filter>
+            <filter id="distort">
+              <feTurbulence type="turbulence" baseFrequency="0.025" numOctaves="3" result="noise"/>
+              <feDisplacementMap in="SourceGraphic" in2="noise" scale="6" xChannelSelector="R" yChannelSelector="G"/>
+            </filter>
+          </defs>
+          <!-- dark background wash -->
+          <rect width="200" height="240" fill="#080808"/>
+          <!-- body / shoulders -->
+          <ellipse cx="100" cy="230" rx="70" ry="30" fill="#111" filter="url(#blur1)"/>
+          <rect x="30" y="180" width="140" height="60" rx="10" fill="#0e0e0e"/>
+          <!-- neck -->
+          <rect x="82" y="155" width="36" height="35" rx="6" fill="#1a1a1a"/>
+          <!-- head shape — slightly asymmetric / distorted -->
+          <ellipse cx="100" cy="110" rx="62" ry="72" fill="#1c1c1c" filter="url(#distort)"/>
+          <!-- skull texture lines -->
+          <path d="M60 80 Q100 60 140 80" stroke="#242424" stroke-width="1" fill="none"/>
+          <path d="M55 100 Q100 88 145 100" stroke="#242424" stroke-width="0.8" fill="none"/>
+          <!-- left eye socket — hollow, dark -->
+          <ellipse cx="76" cy="105" rx="18" ry="14" fill="#060606"/>
+          <ellipse cx="76" cy="105" rx="10" ry="9" fill="#020202"/>
+          <!-- left eye glint — barely visible -->
+          <circle cx="76" cy="103" r="2.5" fill="#cc2222" opacity="0.7"/>
+          <circle cx="78" cy="101" r="0.8" fill="#ff6666" opacity="0.5"/>
+          <!-- right eye socket -->
+          <ellipse cx="124" cy="107" rx="16" ry="13" fill="#060606"/>
+          <ellipse cx="124" cy="107" rx="9" ry="8" fill="#020202"/>
+          <!-- right eye glint -->
+          <circle cx="124" cy="105" r="2" fill="#cc2222" opacity="0.6"/>
+          <circle cx="126" cy="103" r="0.7" fill="#ff6666" opacity="0.4"/>
+          <!-- under-eye shadows -->
+          <ellipse cx="76" cy="117" rx="16" ry="5" fill="#0a0a0a" opacity="0.8"/>
+          <ellipse cx="124" cy="119" rx="14" ry="4" fill="#0a0a0a" opacity="0.8"/>
+          <!-- nose — sunken, barely there -->
+          <path d="M95 120 Q100 130 105 120" stroke="#111" stroke-width="1.5" fill="none"/>
+          <ellipse cx="92" cy="128" rx="4" ry="3" fill="#111"/>
+          <ellipse cx="108" cy="128" rx="4" ry="3" fill="#111"/>
+          <!-- mouth — wide, split, wrong -->
+          <path d="M62 150 Q80 142 100 148 Q120 142 138 150" stroke="#0a0a0a" stroke-width="2" fill="none"/>
+          <path d="M65 153 Q100 163 135 153" stroke="#1a0000" stroke-width="1.5" fill="#0d0000" opacity="0.9"/>
+          <!-- teeth — uneven, dark gaps -->
+          <rect x="78" y="152" width="7" height="9" rx="1" fill="#ccc" opacity="0.5"/>
+          <rect x="87" y="151" width="6" height="10" rx="1" fill="#bbb" opacity="0.45"/>
+          <rect x="95" y="152" width="8" height="9" rx="1" fill="#c8c8c8" opacity="0.5"/>
+          <rect x="105" y="151" width="6" height="10" rx="1" fill="#bbb" opacity="0.4"/>
+          <rect x="113" y="152" width="7" height="9" rx="1" fill="#ccc" opacity="0.45"/>
+          <!-- gaps between teeth -->
+          <rect x="84" y="152" width="2" height="9" fill="#030303"/>
+          <rect x="93" y="151" width="2" height="10" fill="#030303"/>
+          <rect x="103" y="152" width="2" height="9" fill="#030303"/>
+          <rect x="111" y="151" width="2" height="10" fill="#030303"/>
+          <!-- hair — stringy dark lines -->
+          <path d="M45 75 Q50 30 100 25 Q150 30 155 75" stroke="#111" stroke-width="14" fill="none" stroke-linecap="round"/>
+          <path d="M48 70 Q42 40 60 20" stroke="#0e0e0e" stroke-width="3" fill="none"/>
+          <path d="M152 72 Q158 38 138 18" stroke="#0e0e0e" stroke-width="3" fill="none"/>
+          <path d="M70 28 Q65 5 55 0" stroke="#0c0c0c" stroke-width="2.5" fill="none"/>
+          <path d="M100 24 Q97 5 98 0" stroke="#0c0c0c" stroke-width="2" fill="none"/>
+          <path d="M130 26 Q136 4 144 0" stroke="#0c0c0c" stroke-width="2.5" fill="none"/>
+          <!-- face cracks / veins -->
+          <path d="M76 90 Q72 100 70 115" stroke="#2a0000" stroke-width="0.6" fill="none" opacity="0.6"/>
+          <path d="M124 92 Q128 105 126 118" stroke="#2a0000" stroke-width="0.6" fill="none" opacity="0.5"/>
+          <path d="M88 60 Q84 50 90 42" stroke="#222" stroke-width="0.5" fill="none"/>
+          <!-- CRT horizontal scan interference -->
+          <rect x="0" y="0" width="200" height="240"
+            fill="url(#scanlines)" opacity="0.08"/>
+          <defs>
+            <pattern id="scanlines" width="200" height="4" patternUnits="userSpaceOnUse">
+              <rect width="200" height="2" fill="white" opacity="0.04"/>
+            </pattern>
+          </defs>
+          <!-- dark top vignette over face -->
+          <ellipse cx="100" cy="0" rx="110" ry="60" fill="#000" opacity="0.4"/>
+          <ellipse cx="100" cy="240" rx="110" ry="60" fill="#000" opacity="0.5"/>
+        </svg>
+      `;
+      cam.appendChild(fig);
+      // Fade the face in after 2.5 seconds — slow creep
+      setTimeout(()=>{ fig.style.opacity = '1'; }, 2500);
+      // Flicker it
+      setTimeout(()=>{ flickerCamFace(fig); }, 2500);
+    }
+    grid.appendChild(cam);
+  });
+}
+
+function flickerCamFace(el) {
+  // Occasional static flicker on the face
+  setInterval(()=>{
+    if(Math.random() < 0.25) {
+      el.style.opacity = (0.3 + Math.random()*0.3).toString();
+      setTimeout(()=>{ el.style.opacity='1'; }, 80 + Math.random()*120);
+    }
+  }, 800);
+}
+
+function startCamTime() {
+  let sec = 47*60 + 12;
+  camInterval = setInterval(()=>{
+    sec++;
+    const h = Math.floor(sec/3600)%24;
+    const m = Math.floor(sec/60)%60;
+    const s = sec%60;
+    document.getElementById('camTime').textContent =
+      `0${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  }, 1000);
+}
+
+function showCamAnomaly() {
+  if(anomalyShown) return;
+  anomalyShown = true;
+  triggerJumpScare(()=>{
+    const msg = document.getElementById('camAnomalyMsg');
+    msg.textContent = '⚠ ANOMALY DETECTED — CAM 03';
+    msg.style.display = 'block';
+    addClue("Camera 03: humanoid figure — non-employee", true);
+    G.cameraClueFound = true;
+    playHeartbeat();
+    setTimeout(()=>{ msg.style.display='none'; }, 2500);
+  });
+}
+
+function closeCameras() {
+  clearInterval(camInterval);
+  clearTimeout(camCloseTimeout);
+  document.getElementById('cameraScreen').style.display = 'none';
+  if(actionsUsed >= requiredForPhase) enableContinue();
+  else {
+    actionsUsed = Math.max(actionsUsed, 1);
+    if(actionsUsed >= requiredForPhase) enableContinue();
+  }
+}
+
+// ======================================================
+// STALKER MINI-GAME
+// ======================================================
+let stalkerLoop = null;
+let playerPos = 80;
+let stalkerPos = 580;
+let hidingSpot = 250;
+let stalkerSpeed = 1.5;
+
+function startStalker() {
+  document.getElementById('stalkerScreen').style.display = 'flex';
+  playerPos = 80;
+  stalkerPos = 580;
+
+  document.getElementById('playerChar').style.left = playerPos+'px';
+  document.getElementById('stalkerChar').style.right = (600-stalkerPos)+'px';
+
+  setSanity(G.sanity - 10);
+  playHeartbeat();
+
+  stalkerLoop = setInterval(updateStalker, 50);
+}
+
+document.addEventListener('keydown', function(e) {
+  if(!document.getElementById('stalkerScreen').style.display || document.getElementById('stalkerScreen').style.display==='none') return;
+  if(e.key==='d'||e.key==='D') {
+    playerPos = Math.min(playerPos+18, 560);
+    document.getElementById('playerChar').style.left = playerPos+'px';
+  }
+  if(e.key==='a'||e.key==='A') {
+    playerPos = Math.max(playerPos-18, 0);
+    document.getElementById('playerChar').style.left = playerPos+'px';
+  }
+});
+
+// Touch support for stalker
+document.getElementById ? null : null; // placeholder
+window.addEventListener('load', ()=>{
+  document.getElementById('stalkerScreen').addEventListener('touchstart', (e)=>{
+    const x = e.touches[0].clientX;
+    if(x < window.innerWidth/2) {
+      playerPos = Math.max(playerPos-18, 0);
+    } else {
+      playerPos = Math.min(playerPos+18, 560);
+    }
+    document.getElementById('playerChar').style.left = playerPos+'px';
+  });
+});
+
+function updateStalker() {
+  stalkerPos -= stalkerSpeed;
+  document.getElementById('stalkerChar').style.left = stalkerPos+'px';
+
+  const dist = stalkerPos - playerPos;
+  const proximity = Math.max(0, Math.min(100, 100 - (dist/5)));
+  document.getElementById('proximityFill').style.width = proximity+'%';
+
+  if(dist < 60) {
+    // CAUGHT
+    clearInterval(stalkerLoop);
+    setSanity(G.sanity - 20);
+    triggerJumpScare(()=>{
+      document.getElementById('stalkerScreen').style.display = 'none';
+      typeText("It grabbed you. Cold fingers around your wrist. Then — it let go. Why? It whispered something in your ear. A number: 'Four digits. 1947.' Then it vanished into a machine.");
+      addClue("Stalker whispered the code: '1947'", true);
+      G.stalkerSeen = true;
+      setTimeout(enableContinue, 2000);
+      actionsUsed = Math.max(actionsUsed, 1);
+    });
+    return;
+  }
+
+  if(playerPos > 250) {
+    // Reached hiding spot
+    clearInterval(stalkerLoop);
+    document.getElementById('stalkerScreen').style.display = 'none';
+    typeText("You squeeze into the storage closet, heart hammering. Through the crack in the door you watch it pass. It stops. Turns its head. Somehow doesn't see you. You made it.");
+    G.stalkerSeen = true;
+    addClue("Survived the stalker — hid in storage closet");
+    setSanity(G.sanity + 10);
+    setTimeout(enableContinue, 2000);
+    actionsUsed = Math.max(actionsUsed, 1);
+  }
+}
+
+// ======================================================
+// BASEMENT LOCK
+// ======================================================
+let lockInput = '';
+
+function openBasement() {
+  lockInput = '';
+  updateLockDisplay();
+  document.getElementById('basementScreen').style.display = 'flex';
+
+  // Build keypad
+  const pad = document.getElementById('keypad');
+  pad.innerHTML = '';
+  const keys = ['1','2','3','4','5','6','7','8','9','←','0','✓'];
+  keys.forEach(k=>{
+    const btn = document.createElement('button');
+    btn.className = 'key-btn';
+    btn.textContent = k;
+    btn.onclick = ()=>pressKey(k);
+    pad.appendChild(btn);
+  });
+
+  // Hint based on clues
+  const hint = document.getElementById('lockHint');
+  if(G.clues.some(c=>c.includes('1947'))) {
+    hint.textContent = '// CLUE: Something happened here in 1947. The year is the key.';
+    hint.style.color = '#4a1a1a';
+  }
+}
+
+function pressKey(k) {
+  playTone(440,'sine',0.1,0.05);
+  if(k==='←') {
+    lockInput = lockInput.slice(0,-1);
+  } else if(k==='✓') {
+    checkCode();
+    return;
+  } else {
+    if(lockInput.length < 4) lockInput += k;
+  }
+  updateLockDisplay();
+}
+
+function updateLockDisplay() {
+  const d = document.getElementById('lockDisplay');
+  let display = lockInput.split('').join(' ');
+  while(display.split(' ').filter(Boolean).length < 4) display += ' _';
+  d.textContent = display || '_ _ _ _';
+}
+
+function checkCode() {
+  const fb = document.getElementById('lockFeedback');
+  if(lockInput === G.lockCode) {
+    fb.textContent = '// ACCESS GRANTED';
+    fb.style.color = '#3a3';
+    playTone(660,'sine',0.5,0.1);
+    G.basementUnlocked = true;
+    setTimeout(()=>{
+      closeBasement();
+      typeText("The lock clicks. The door groans open — cold air rushes up. The smell of old stone, stagnant water, and something else. Below: darkness. And a faint light.");
+      addClue("Basement unlocked — 1947 code confirmed", true);
+      setTimeout(enableContinue, 2000);
+      actionsUsed = Math.max(actionsUsed, 1);
+    }, 1000);
+  } else {
+    fb.textContent = '// INCORRECT — ' + (4-lockInput.length+lockInput.length) + ' ATTEMPT';
+    fb.style.color = 'var(--blood)';
+    playTone(200,'sawtooth',0.3,0.1);
+    setSanity(G.sanity - 5);
+    triggerScreenShake();
+    lockInput = '';
+    updateLockDisplay();
+    setTimeout(()=>fb.textContent='', 2000);
+  }
+}
+
+function closeBasement() {
+  document.getElementById('basementScreen').style.display = 'none';
+}
+
+// ======================================================
+// FINAL CHASE
+// ======================================================
+let chasePlayerX = 60;
+let chaseEnemyX = 0;
+let chaseInterval = null;
+const chaseArenaWidth = Math.min(800, window.innerWidth*0.9);
+
+function startFinalChase() {
+  chasePlayerX = 60;
+  chaseEnemyX = 0;
+  document.getElementById('chasePlayer').style.left = chasePlayerX+'px';
+  document.getElementById('chaseEnemy').style.left = chaseEnemyX+'px';
+
+  document.getElementById('finalChase').style.display = 'flex';
+  document.body.style.background = '#0a0000';
+
+  chaseInterval = setInterval(updateChase, 40);
+
+  // Mobile tap
+  document.getElementById('finalChase').addEventListener('touchstart', ()=>{
+    chasePlayerX += 20;
+    document.getElementById('chasePlayer').style.left = chasePlayerX+'px';
+  });
+}
+
+document.addEventListener('keydown', function(e) {
+  if(document.getElementById('finalChase').style.display !== 'flex') return;
+  if(e.key==='d'||e.key==='D'||e.key==='ArrowRight') {
+    chasePlayerX += 20;
+    document.getElementById('chasePlayer').style.left = chasePlayerX+'px';
+  }
+});
+
+function updateChase() {
+  chaseEnemyX += 3.5;
+  document.getElementById('chaseEnemy').style.left = chaseEnemyX+'px';
+
+  const dist = chasePlayerX - chaseEnemyX;
+  const prox = Math.max(0, Math.min(100, 100 - (dist/6)));
+  document.getElementById('chaseFill').style.width = prox+'%';
+
+  if(prox > 70) playHeartbeat();
+
+  if(chaseEnemyX >= chasePlayerX - 40) {
+    clearInterval(chaseInterval);
+    triggerJumpScare(()=>{
+      document.getElementById('finalChase').style.display = 'none';
+      showEnding('bad');
+    });
+    return;
+  }
+
+  if(chasePlayerX > chaseArenaWidth - 60) {
+    clearInterval(chaseInterval);
+    document.getElementById('finalChase').style.display = 'none';
+    showEnding(G.sanity > 40 ? 'good' : 'secret');
+  }
+}
+
+// ======================================================
+// ENDINGS
+// ======================================================
+function showEnding(type) {
+  const screen = document.getElementById('endScreen');
+  screen.style.display = 'flex';
+  screen.style.flexDirection = 'column';
+  screen.style.alignItems = 'center';
+  screen.style.justifyContent = 'center';
+
+  const elapsed = Math.floor((Date.now() - G.startTime)/1000);
+  const minutes = Math.floor(elapsed/60);
+  const seconds = elapsed%60;
+
+  document.getElementById('endStats').textContent =
+    `CLUES: ${G.cluesFound}/5 · SANITY: ${G.sanity}% · TIME: ${minutes}m ${seconds}s`;
+
+  if(type === 'good') {
+    screen.className = 'good-end';
+    document.getElementById('endTitle').textContent = 'YOU ESCAPED';
+    document.getElementById('endStory').textContent =
+      "You burst through the tunnel exit into the grey pre-dawn street. The laundromat door slams shut behind you. In your hand — the rusted key. You never returned. Elise was never found. But sometimes, at 3:47 AM, your phone rings. No one speaks. In the background — a washing machine.";
+    playTone(330,'sine',2,0.1);
+  } else if(type === 'bad') {
+    screen.className = 'bad-end';
+    document.getElementById('endTitle').textContent = 'CONSUMED';
+    document.getElementById('endStory').textContent =
+      "The machine closed around you. Cold water. Darkness. You became part of the cycle — the endless spin, the unclaimed, the forgotten. The next morning, a laundry worker finds a new uniform in machine #7. Small. Child-sized. Your nametag inside.";
+    playScream();
+  } else {
+    // SECRET ENDING
+    screen.className = 'bad-end';
+    screen.style.background = 'radial-gradient(ellipse at center, #0a001a, #000)';
+    document.getElementById('endTitle').textContent = 'YOU STAYED';
+    document.getElementById('endTitle').style.color = '#6a4';
+    document.getElementById('endStory').textContent =
+      "You escaped the building — but you didn't run. You sat on the curb until sunrise, went back in, and called the police. They found the basement. They found remains. Four of them. 1947. Elise wasn't among them. But the machines still run at night. And you're the only one who knows why.";
+    playTone(220,'sine',3,0.1);
+  }
+
+  // Animate with delays
+  document.getElementById('endStory').style.animationDelay = '0.5s';
+  document.getElementById('endStats').style.animationDelay = '1s';
+  document.querySelector('.restart-btn').style.animationDelay = '1.5s';
+}
+
+// ======================================================
+// START GAME
+// ======================================================
+function startGame() {
+  document.getElementById('titleScreen').style.display = 'none';
+  document.getElementById('mainGame').style.display = 'block';
+  loadPhase(0);
+  G.startTime = Date.now();
+}
+
+// ======================================================
+// INIT
+// ======================================================
+window.addEventListener('load', ()=>{
+  createDrips();
+
+  // Ambient heartbeat every 15 seconds
+  setInterval(()=>{
+    if(G.sanity < 50 && document.getElementById('mainGame').style.display!=='none') {
+      playHeartbeat();
+    }
+  }, 15000);
+
+  // Random ambient creak
+  setInterval(()=>{
+    if(Math.random() < 0.3 && document.getElementById('mainGame').style.display!=='none') {
+      playCreak();
+    }
+  }, 20000);
+});
+</script>
+</body>
+</html>
